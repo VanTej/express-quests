@@ -1,8 +1,38 @@
 const database = require("./database");
 
 const getUsers = (req, res) => {
+  const { firstname, lastname, email, city, language } = req.query;
+  let sqlValues = [];
+  let sql = "select * from users";
+  
+  if (firstname) {
+    sqlValues.length ? (sql += " and ") : (sql += " where ");
+    sql += "firstname like ?";
+    sqlValues.push(`%${firstname}%`);
+  }
+  if (lastname) {
+    sqlValues.length ? (sql += " and ") : (sql += " where ");
+    sql += "lastname like ?";
+    sqlValues.push(`%${lastname}%`);
+  }
+  if (email) {
+    sqlValues.length ? (sql += " and ") : (sql += " where ");
+    sql += "email like ?";
+    sqlValues.push(`%${email}%`);
+  }
+  if (city) {
+    sqlValues.length ? (sql += " and ") : (sql += " where ");
+    sql += "city like ?";
+    sqlValues.push(`%${city}%`);
+  }
+  if (language) {
+    sqlValues.length ? (sql += " and ") : (sql += " where ");
+    sql += "language like ?";
+    sqlValues.push(`%${language}%`);
+  }
+
   database
-    .query("select * from users")
+    .query(sql, sqlValues)
     .then(([users]) => {
       res.status(200).json(users);
     })

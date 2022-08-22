@@ -1,8 +1,38 @@
 const database = require("./database");
 
 const getMovies = (req, res) => {
+  const { title, director, year, color, max_duration } = req.query;
+  let sqlValues = [];
+  let sql = "select * from movies";
+  
+  if (title) {
+    sqlValues.length ? (sql += " and ") : (sql += " where ");
+    sql += "title like ?";
+    sqlValues.push(`%${title}%`);
+  }
+  if (director) {
+    sqlValues.length ? (sql += " and ") : (sql += " where ");
+    sql += "director like ?";
+    sqlValues.push(`%${director}%`);
+  }
+  if (year) {
+    sqlValues.length ? (sql += " and ") : (sql += " where ");
+    sql += "year = ?";
+    sqlValues.push(year);
+  }
+  if (color) {
+    sqlValues.length ? (sql += " and ") : (sql += " where ");
+    sql += "color = ?";
+    sqlValues.push(color);
+  }
+  if (max_duration) {
+    sqlValues.length ? (sql += " and ") : (sql += " where ");
+    sql += "duration <= ?";
+    sqlValues.push(max_duration);
+  }
+
   database
-    .query("select * from movies")
+    .query(sql, sqlValues)
     .then(([movies]) => {
       res.status(200).json(movies);
     })
