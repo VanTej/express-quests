@@ -15,7 +15,7 @@ usersRouter.get("/:id", (req, res) => {
   const id = parseInt(req.params.id);
   User.getUserById(id)
     .then((user) => {
-        console.log(user);
+      console.log(user);
       user
         ? res.json(user).status(200)
         : res.status(404).send("User not found");
@@ -27,16 +27,26 @@ usersRouter.get("/:id", (req, res) => {
 });
 
 usersRouter.post("/", (req, res) => {
-  User.createUser(req.body)
-    .then((user) => res.status(201).json(user))
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send("problème d'insertion dans la bdd");
-    });
+  const { firstname, lastname, email, city, language, password } = req.body;
+  User.hashPassword(password).then((hashedPassword) => {
+    User.createUser({
+      firstname,
+      lastname,
+      email,
+      city,
+      language,
+      hashedPassword,
+    })
+      .then((user) => res.status(201).json(user))
+      .catch((err) => {
+        console.error(err);
+        res.status(500).send("problème d'insertion dans la bdd");
+      });
+  });
 });
 
 usersRouter.put("/:id", (req, res) => {
-  const id = parseInt(req.params.id); 
+  const id = parseInt(req.params.id);
   const { firstname, lastname, email, city, language } = req.body;
 
   User.updateUser({ id, firstname, lastname, email, city, language })

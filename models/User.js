@@ -1,4 +1,20 @@
 const database = require("../database");
+const argon2 = require("argon2");
+
+const hashingOptions = {
+  type: argon2.argon2id,
+  memoryCost: 2 ** 16,
+  timeCost: 5,
+  parallelism: 1,
+};
+
+const hashPassword = (plainPassword) => {
+  return argon2.hash(plainPassword, hashingOptions);
+};
+
+const verifyPassword = (plainPassword, hashedPassword) => {
+  return argon2.verify(hashedPassword, plainPassword, hashingOptions);
+};
 
 const getUsers = ({ firstname, lastname, email, city, language }) => {
   let sqlValues = [];
@@ -39,11 +55,28 @@ const getUserById = (id) => {
     .then(([result]) => result);
 };
 
-const createUser = ({ firstname, lastname, email, city, language }) => {
+const authentication = ({ email, password }) => {
+  return database
+    .query("select hashedPassword from users where email = ?", [email])
+    .then(([user]) => {
+      return verifyPassword(password, user[0].hashedPassword).then(
+        (authenticated) => authenticated
+      );
+    });
+};
+
+const createUser = ({
+  firstname,
+  lastname,
+  email,
+  city,
+  language,
+  hashedPassword,
+}) => {
   return database
     .query(
-      "INSERT INTO users(firstname, lastname, email, city, language) VALUES (?, ?, ?, ?, ?)",
-      [firstname, lastname, email, city, language]
+      "INSERT INTO users(firstname, lastname, email, city, language, hashedPassword) VALUES (?, ?, ?, ?, ?, ?)",
+      [firstname, lastname, email, city, language, hashedPassword]
     )
     .then(([result]) => {
       const id = result.insertId;
@@ -67,13 +100,16 @@ const deleteUser = (id) => {
     .query(`delete from users where id = ?`, [id])
     .then(([result]) => {
       return result.affectedRows;
-    })
+    });
 };
 
 module.exports = {
   getUsers,
   getUserById,
+  authentication,
   createUser,
   updateUser,
   deleteUser,
+  hashPassword,
+  verifyPassword,
 };
