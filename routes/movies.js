@@ -1,9 +1,12 @@
 const moviesRouter = require("express").Router();
 const Movie = require("../models/Movie");
+const { decodeToken } = require("../helpers/users");
 
 moviesRouter.get("/", (req, res) => {
-  const { title, director, year, color, max_duration } = req.query;
-  Movie.getMovies({ filters: { title, director, year, color, max_duration } })
+  const { title, director, year, color, max_duration, user } = req.query;
+  Movie.getMovies({
+    filters: { title, director, year, color, max_duration, user },
+  })
     .then((movies) => {
       if (movies) {
         res.json(movies);
@@ -35,7 +38,11 @@ moviesRouter.get("/:id", (req, res) => {
 
 moviesRouter.post("/", (req, res) => {
   const { title, director, year, color, duration } = req.body;
-  Movie.createMovie({ filters: { title, director, year, color, duration } })
+  const { user_token } = req.cookies;
+  const user_id = decodeToken(user_token).id;
+  Movie.createMovie({
+    filters: { title, director, year, color, duration, user_id },
+  })
     .then((movie) => res.status(201).json(movie))
     .catch((err) => {
       console.error(err);

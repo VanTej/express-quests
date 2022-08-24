@@ -1,13 +1,27 @@
 const authRouter = require("express").Router();
 const User = require("../models/User");
+const { calculateToken } = require("../helpers/users");
 
 authRouter.post("/checkCredentials", (req, res) => {
-  if (req.body.password.length < 8) {
+  const { email, password } = req.body;
+  if (password.length < 8) {
     res.status(401).send("password too short");
   } else {
     User.authentication(req.body)
       .then((result) => {
-        result ? res.sendStatus(200) : res.sendStatus(401);
+        User.verifyPassword(password, result[0].hashedPassword).then(
+          (authenticated) => {
+            if (authenticated) {
+              const id = result[0].id;
+              const token = calculateToken(email, id);
+              res
+                .cookie("user_token", token)
+                .sendStatus(200);
+            } else {
+              res.sendStatus(401);
+            }
+          }
+        );
       })
       .catch((err) => {
         console.error(err);

@@ -1,7 +1,7 @@
 const database = require("../database");
 
 const getMovies = ({
-  filters: { title, director, year, color, max_duration },
+  filters: { title, director, year, color, max_duration, user },
 }) => {
   let sqlValues = [];
   let sql = "select * from movies";
@@ -31,6 +31,11 @@ const getMovies = ({
     sql += "duration <= ?";
     sqlValues.push(max_duration);
   }
+  if (user) {
+    sqlValues.length ? (sql += " and ") : (sql += " where ");
+    sql += "user_id = ?";
+    sqlValues.push(user);
+  }
   return database.query(sql, sqlValues).then(([result]) => result);
 };
 
@@ -41,16 +46,16 @@ const getMovieById = (id) => {
 };
 
 const createMovie = ({
-  filters: { title, director, year, color, duration },
+  filters: { title, director, year, color, duration, user_id },
 }) => {
   return database
     .query(
-      "INSERT INTO movies(title, director, year, color, duration) VALUES (?, ?, ?, ?, ?)",
-      [title, director, year, color, duration]
+      "INSERT INTO movies(title, director, year, color, duration, user_id) VALUES (?, ?, ?, ?, ?, ?)",
+      [title, director, year, color, duration, user_id]
     )
     .then(([result]) => {
       const id = result.insertId;
-      return { id, title, director, year, color, duration };
+      return { id, title, director, year, color, duration, user_id };
     });
 };
 

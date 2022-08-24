@@ -57,12 +57,8 @@ const getUserById = (id) => {
 
 const authentication = ({ email, password }) => {
   return database
-    .query("select hashedPassword from users where email = ?", [email])
-    .then(([user]) => {
-      return verifyPassword(password, user[0].hashedPassword).then(
-        (authenticated) => authenticated
-      );
-    });
+    .query("select id, hashedPassword from users where email = ?", [email])
+    .then(([user]) =>  user);
 };
 
 const createUser = ({

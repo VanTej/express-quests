@@ -6,7 +6,8 @@ CREATE TABLE movies (
   director varchar(255) NOT NULL,
   year varchar(255) NOT NULL,
   color varchar(255) NOT NULL,
-  duration int NOT NULL
+  duration int NOT NULL,
+  user_id int NOT NULL,
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3;
 
 INSERT INTO
@@ -17,42 +18,48 @@ VALUES
     'Orson Wells',
     '1941',
     '0',
-    120
+    120,
+    1
   ),
   (
     'The Godfather',
     'Francis Ford Coppola',
     '1972',
     '1',
-    180
+    180,
+    1
   ),
   (
     'Pulp Fiction',
     'Quentin Tarantino',
     '1994',
     '1',
-    180
+    180,
+    1
   ),
   (
     'Apocalypse Now',
     'Francis Ford Coppola',
     '1979',
     '1',
-    150
+    150,
+    1
   ),
   (
     '2001 a space odyssey',
     'Stanley Kubrick',
     '1968',
     '1',
-    160
+    160,
+    2
   ),
   (
     'The Dark Knight',
     'Christopher Nolan',
     '2008',
     '1',
-    150
+    150,
+    2
   );
 
 DROP TABLE IF EXISTS users;
